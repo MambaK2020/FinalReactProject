@@ -1,0 +1,35 @@
+.product {
+  padding: 40px;
+}
+
+.container {
+  display: flex;
+  gap: 40px;
+}
+
+.image {
+  max-width: 400px;
+  border-radius: 12px;
+}
+
+.details {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.title {
+  font-size: 32px;
+  font-weight: 700;
+}
+
+.price {
+  font-size: 28px;
+  font-weight: 600;
+  color: green;
+}
+
+.oldPrice {
+  text-decoration: line-through;
+  color: #888;
+}

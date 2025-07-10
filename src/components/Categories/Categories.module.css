@@ -1,0 +1,71 @@
+.categories {
+  padding: 40px 0px 53px;
+}
+.container {
+  max-width: 1440px;
+  padding: 0px 40px;
+  margin: 0 auto;
+}
+
+.titleWrapp {
+  padding-bottom: 40px;
+  display: flex;
+  align-items: center;
+}
+.secondTitle {
+  font-weight: 700;
+  font-size: 64px;
+  line-height: 1.1;
+  color: #282828;
+  margin-right: 32px;
+}
+.devider {
+  border: 1px solid #ddd;
+  width: 100%;
+}
+.primaryLink {
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  padding: 8px 16px;
+  color: #ddd;
+  min-width: 142px;
+  text-decoration: none;
+}
+.listCateries {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 32px;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.itemCateries {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.imgCateries {
+  border-radius: 12px;
+  max-width: 316px;
+  max-height: 350px;
+  object-fit: cover;
+  object-position: center;
+  width: 100%;
+}
+.itemTitleCateries {
+  font-weight: 500;
+  font-size: 20px;
+  line-height: 1.3;
+  text-align: center;
+  color: #282828;
+  margin-top: 16px;
+}
+.linkToCategori {
+  text-decoration: none;
+}
+
+.primaryLink:hover {
+  background-color: #007bff;
+  color: white;
+}
