@@ -9,7 +9,7 @@ import { selectProducts } from '../../redux/selectors'
 const Sale = () => {
   const allProducts = useSelector(selectProducts) || []
 
-  // Выбор случайных 4 товаров со скидкой
+  
   const saleProducts = useMemo(() => {
     const productsWithDiscount = allProducts.filter(
       (product) => product.discount_price !== null

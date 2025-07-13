@@ -1,166 +1,102 @@
 
-import { useDispatch, useSelector } from 'react-redux';
+import css from "./Cart.module.css";
+import removeImg from "../../assets/images/ic-x.svg";
+
+import OrderForm from "../OrderForm/OrderForm";
+import QuantityControls from "../ui/QuantityControls/QuantityControls";
+import { useDispatch, useSelector } from "react-redux";
 import {
-  removeFromCart,
-  incrementQty,
-  decrementQty,
-  clearCart,
-} from '../../store/cartSlice';
-import QuantityControls from '../UI/QuantityControls/QuantityControls';
-import css from './Cart.module.css';
-import { useForm } from 'react-hook-form';
-import axios from 'axios';
-import { useState } from 'react';
+  selectCartItems,
+  selectTotalAmount,
+  selectTotalQuantity,
+} from "../../redux/selectors";
+import { removeItemFromCart, updateItemQuantity } from "../../store/cartSlice";
 
-const Cart = () => {
+export const Cart = () => {
   const dispatch = useDispatch();
-  const items = useSelector((state) => state.cart.items);
-  const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
-
-  const total = items.reduce((acc, item) => {
-    const itemPrice = item.discount_price || item.price;
-    return acc + itemPrice * item.quantity;
-  }, 0);
-
-  const {
-    register,
-    handleSubmit,
-    reset,
-    formState: { errors },
-  } = useForm();
-
-  const onSubmit = async (data) => {
-    const orderData = {
-      customer: data,
-      items: items.map(({ id, title, quantity, price, discount_price }) => ({
-        id,
-        title,
-        quantity,
-        price: discount_price || price,
-      })),
-      total: total.toFixed(2),
-    };
-
-    try {
-      await axios.post('http://localhost:3333/order/send', orderData);
-      dispatch(clearCart());
-      reset();
-      setIsSuccessModalOpen(true);
-    } catch (error) {
-      console.error('Ошибка отправки заказа:', error);
-    }
-  };
+  const cartItems = useSelector(selectCartItems);
+  const totalQuantity = useSelector(selectTotalQuantity);
+  const totalAmount = useSelector(selectTotalAmount);
 
   return (
-    <div className={css.cart}>
-      <h2 className={css.title}>Корзина</h2>
+    <div className={css.productsSection}>
+      <div className={css.leftContainer}>
+        <ul className={css.list}>
+          {cartItems.map(
+            ({ id, image, title, discont_price, price, quantity }) => {
+              return (
+                <li key={id} className={css.item}>
+                  <div className={css.imgWrapp}>
+                    <img
+                      className={css.img}
+                      src={`http://localhost:3333${image}`}
+                      alt=""
+                    />
+                  </div>
+                  <div className={css.details}>
+                    <h4 className={css.detailsTitle}>{title}</h4>
+                    <div className={css.test}>
+                      <QuantityControls
+                        quantity={quantity}
+                        onIncrement={() =>
+                          dispatch(
+                            updateItemQuantity({
+                              id,
+                              newQuantity: quantity + 1,
+                            })
+                          )
+                        }
+                        onDecrement={() =>
+                          dispatch(
+                            updateItemQuantity({
+                              id,
+                              newQuantity: quantity - 1,
+                            })
+                          )
+                        }
+                      />
+                      {discont_price ? (
+                        <div className={css.pricing}>
+                          <span className={css.discountedPrice}>
+                            $ {discont_price}
+                          </span>
+                          <span className={css.price}>$ {price}</span>
+                        </div>
+                      ) : (
+                        <div className={css.pricing}>
+                          <span className={css.discountedPrice}>$ {price}</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
 
-      {items.length === 0 ? (
-        <p className={css.empty}>Корзина пуста</p>
-      ) : (
-        <>
-          <ul className={css.list}>
-            {items.map((item) => (
-              <li key={item.id} className={css.item}>
-                <img
-                  src={`http://localhost:3333${item.image}`}
-                  alt={item.title}
-                  className={css.image}
-                />
-                <div className={css.details}>
-                  <h4>{item.title}</h4>
-                  <p>Цена: ${item.discount_price || item.price}</p>
-                  <QuantityControls
-                    quantity={item.quantity}
-                    onIncrement={() => dispatch(incrementQty(item.id))}
-                    onDecrement={() => dispatch(decrementQty(item.id))}
-                  />
                   <button
+                    onClick={() => dispatch(removeItemFromCart(id))}
                     className={css.removeBtn}
-                    onClick={() => dispatch(removeFromCart(item.id))}
                   >
-                    Удалить
+                    <img className={css.removeImg} src={removeImg} alt="" />
                   </button>
-                </div>
-              </li>
-            ))}
-          </ul>
-
-          <div className={css.footer}>
-            <h3>Итого: ${total.toFixed(2)}</h3>
-            <button
-              className={css.clearBtn}
-              onClick={() => dispatch(clearCart())}
-            >
-              Очистить корзину
-            </button>
-          </div>
-
-          <form className={css.form} onSubmit={handleSubmit(onSubmit)}>
-            <h3>Оформить заказ</h3>
-
-            <label>
-              Имя:
-              <input
-                type="text"
-                {...register('name', { required: 'Введите имя' })}
-              />
-              {errors.name && <p className={css.error}>{errors.name.message}</p>}
-            </label>
-
-            <label>
-              Телефон:
-              <input
-                type="tel"
-                {...register('phone', {
-                  required: 'Введите телефон',
-                  pattern: {
-                    value: /^[0-9+\-() ]{7,20}$/,
-                    message: 'Некорректный номер телефона',
-                  },
-                })}
-              />
-              {errors.phone && <p className={css.error}>{errors.phone.message}</p>}
-            </label>
-
-            <label>
-              Email:
-              <input
-                type="email"
-                {...register('email', {
-                  required: 'Введите email',
-                  pattern: {
-                    value: /^[^@\s]+@[^@\s]+\.[^@\s]+$/,
-                    message: 'Некорректный email',
-                  },
-                })}
-              />
-              {errors.email && <p className={css.error}>{errors.email.message}</p>}
-            </label>
-
-            <button type="submit" className={css.orderBtn}>
-              Оформить заказ
-            </button>
-          </form>
-        </>
-      )}
-
-      {/* Модальное окно */}
-      {isSuccessModalOpen && (
-        <div className={css.modal}>
-          <div className={css.modalContent}>
-            <p>Спасибо! Ваш заказ успешно отправлен.</p>
-            <button
-              className={css.closeBtn}
-              onClick={() => setIsSuccessModalOpen(false)}
-            >
-              Закрыть
-            </button>
+                </li>
+              );
+            }
+          )}
+        </ul>
+      </div>
+      <div className={css.rightContainer}>
+        <div className={css.orderSummarySection}>
+          <div className={css.orderSummary}>
+            <h3 className={css.summaryTitle}>Order details</h3>
+            <p className={css.itemsCount}>
+              <span className={css.itemsCount}>{totalQuantity}</span>items
+            </p>
+            <div className={css.totalContainer}>
+              <p className={css.itemsCount}>Total</p>
+              <p className={css.amount}>$ {totalAmount}</p>
+            </div>
+            <OrderForm />
           </div>
         </div>
-      )}
+      </div>
     </div>
   );
 };
-
-export default Cart;

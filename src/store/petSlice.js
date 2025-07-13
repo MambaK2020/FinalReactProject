@@ -3,17 +3,16 @@ import {
   requeestCategoryAll,
   requeestCategoryById,
   requeestProductsAll,
-  requeestProductById, // <-- правильная функция!
-} from '../services/api'
+  requeestProductById,
+} from '../services/api.js'
 
-// --- THUNKS --- //
 
 export const fetchCategoriesAll = createAsyncThunk(
   'pet/categoriesAll',
   async (_, thunkApi) => {
     try {
-      const categoriesAll = await requeestCategoryAll()
-      return categoriesAll
+      const categories = await requeestCategoryAll()
+      return categories
     } catch (error) {
       return thunkApi.rejectWithValue(error.message)
     }
@@ -22,10 +21,10 @@ export const fetchCategoriesAll = createAsyncThunk(
 
 export const fetchCategoryById = createAsyncThunk(
   'pet/categoryById',
-  async (categoryId, thunkApi) => {
+  async (params, thunkApi) => {
     try {
-      const categoryById = await requeestCategoryById(categoryId)
-      return categoryById
+      const data = await requeestCategoryById(params.categoryId, params)
+      return data
     } catch (error) {
       return thunkApi.rejectWithValue(error.message)
     }
@@ -34,31 +33,29 @@ export const fetchCategoryById = createAsyncThunk(
 
 export const fetchProductsAll = createAsyncThunk(
   'pet/productsAll',
-  async (_, thunkApi) => {
+  async (params, thunkApi) => {
     try {
-      const productsAll = await requeestProductsAll()
-      return productsAll
+      const products = await requeestProductsAll(params)
+      return products
     } catch (error) {
       return thunkApi.rejectWithValue(error.message)
     }
   }
 )
 
-export const fetchProductByAId = createAsyncThunk(
-  'pet/productByAId',
+export const fetchProductById = createAsyncThunk(
+  'pet/productById',
   async (productId, thunkApi) => {
     try {
-      const productById = await requeestProductById(productId)
-      return productById
+      const product = await requeestProductById(productId)
+      return product
     } catch (error) {
       return thunkApi.rejectWithValue(error.message)
     }
   }
 )
 
-
-// --- INITIAL STATE --- //
-
+// --- initial state ---
 const INITIAL_STATE = {
   categories: {
     all: [],
@@ -68,21 +65,22 @@ const INITIAL_STATE = {
   },
   products: {
     all: [],
-    byCategory: [],
-    current: null,  // <-- фикс названия
+    categoryProducts: [],
+    current: null,
     isLoading: false,
+    allLoading: false,
     error: null,
   },
 }
 
-// --- SLICE --- //
-
+// --- slice ---
 const petSlice = createSlice({
   name: 'pet',
   initialState: INITIAL_STATE,
+  reducers: {},
   extraReducers: (builder) => {
     builder
-      // --- CATEGORIES ALL --- //
+      // CATEGORIES
       .addCase(fetchCategoriesAll.pending, (state) => {
         state.categories.isLoading = true
         state.categories.error = null
@@ -96,51 +94,43 @@ const petSlice = createSlice({
         state.categories.error = action.payload
       })
 
-      // --- CATEGORY BY ID --- //
       .addCase(fetchCategoryById.pending, (state) => {
-        state.categories.isLoading = true
-        state.products.isLoading = true
-        state.categories.error = null
-      })
-      .addCase(fetchCategoryById.fulfilled, (state, action) => {
-        state.categories.isLoading = false
-        state.products.isLoading = false
-        state.categories.current = action.payload.category
-        state.products.byCategory = state.products.all.filter(
-          (product) =>
-            product.categoryId === Number(action.payload.category.id)
-        )
-      })
-      .addCase(fetchCategoryById.rejected, (state, action) => {
-        state.categories.isLoading = false
-        state.products.isLoading = false
-        state.categories.error = action.payload
-      })
-
-      // --- PRODUCTS ALL --- //
-      .addCase(fetchProductsAll.pending, (state) => {
         state.products.isLoading = true
         state.products.error = null
       })
-      .addCase(fetchProductsAll.fulfilled, (state, action) => {
+      .addCase(fetchCategoryById.fulfilled, (state, action) => {
         state.products.isLoading = false
-        state.products.all = action.payload
+        state.categories.current = action.payload.category
+        state.products.categoryProducts = action.payload.products
       })
-      .addCase(fetchProductsAll.rejected, (state, action) => {
+      .addCase(fetchCategoryById.rejected, (state, action) => {
         state.products.isLoading = false
         state.products.error = action.payload
       })
 
-      // --- PRODUCT BY ID --- //
-      .addCase(fetchProductByAId.pending, (state) => {
+      // PRODUCTS
+      .addCase(fetchProductsAll.pending, (state) => {
+        state.products.allLoading = true
+        state.products.error = null
+      })
+      .addCase(fetchProductsAll.fulfilled, (state, action) => {
+        state.products.allLoading = false
+        state.products.all = action.payload
+      })
+      .addCase(fetchProductsAll.rejected, (state, action) => {
+        state.products.allLoading = false
+        state.products.error = action.payload
+      })
+
+      .addCase(fetchProductById.pending, (state) => {
         state.products.isLoading = true
         state.products.error = null
       })
-      .addCase(fetchProductByAId.fulfilled, (state, action) => {
+      .addCase(fetchProductById.fulfilled, (state, action) => {
         state.products.isLoading = false
         state.products.current = action.payload
       })
-      .addCase(fetchProductByAId.rejected, (state, action) => {
+      .addCase(fetchProductById.rejected, (state, action) => {
         state.products.isLoading = false
         state.products.error = action.payload
       })

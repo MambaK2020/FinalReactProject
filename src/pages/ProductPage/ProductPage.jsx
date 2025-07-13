@@ -2,65 +2,82 @@ import React, { useEffect, useState } from 'react'
 import css from './ProductPage.module.css'
 import { useParams, Link } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
-import { fetchProductByAId } from '../../store/petSlice'
-import { selectProducts } from '../../redux/selectors'
+
+import { fetchProductById } from '../../store/petSlice' 
+import { selectCurrentProduct, selectProductsLoading } from '../../redux/selectors'
 import Loader from '../../components/Loader/Loader'
-import { useCart } from '../../context/CartContext'
+import { addToCart } from '../../store/cartSlice';
+import { ROUTES } from '../../utils/routes';
 
 const ProductPage = () => {
-  const { productId } = useParams()
-  const dispatch = useDispatch()
-  const products = useSelector(selectProducts)
-  const product = products.find((p) => p.id === Number(productId))
-  const { addToCart } = useCart()
-  const [quantity, setQuantity] = useState(1)
+  const { productId } = useParams();
+  const dispatch = useDispatch();
+  const currentProduct = useSelector(selectCurrentProduct);
+  const isLoading = useSelector(selectProductsLoading);
+  const [quantity, setQuantity] = useState(1);
 
   useEffect(() => {
-    dispatch(fetchProductByAId(productId))
-  }, [dispatch, productId])
-
-  if (!product) return <Loader />
-
-  const discountPercent = product.discount_price
-    ? Math.round(
-        ((product.price - product.discount_price) / product.price) * 100
-      )
-    : null
+    if (productId) {
+      dispatch(fetchProductById(productId));
+    }
+  }, [dispatch, productId]);
 
   const handleAddToCart = () => {
-    addToCart({ ...product, quantity })
+    if (currentProduct) {
+      dispatch(addToCart({ ...currentProduct, quantity }));
+    }
+  };
+
+  if (isLoading) {
+    return <Loader />;
   }
+
+  if (!currentProduct) {
+    return (
+      <section className={css.product}>
+        <div className={css.container}>
+          <p className={css.notFoundMessage}>Product not found.</p>
+        </div>
+      </section>
+    );
+  }
+
+  const discountPercent = currentProduct.discount_price
+    ? Math.round(
+        ((currentToProduct.price - currentProduct.discount_price) / currentProduct.price) * 100
+      )
+    : null;
 
   return (
     <section className={css.product}>
       <div className={css.container}>
         <div className={css.breadcrumbs}>
-          <Link to="/">Main page</Link> /{' '}
-          <Link to="/categories">Categories</Link> /{' '}
-          <span>{product.title}</span>
+          <Link to={ROUTES.MAIN}>Main page</Link> /{' '}
+          <Link to={ROUTES.CATEGORIES}>Categories</Link> /{' '}
+          <span>{currentProduct.title}</span>
         </div>
 
         <div className={css.content}>
           <div className={css.gallery}>
-            {/* В реальности: product.galleryImages.map(...) */}
+        
           </div>
 
           <div className={css.mainImage}>
             <img
-              src={`http://localhost:3333${product.image}`}
-              alt={product.title}
+              src={`http://localhost:3333${currentProduct.image}`}
+              alt={currentProduct.title}
             />
           </div>
 
           <div className={css.info}>
-            <h1>{product.title}</h1>
+            <h1>{currentProduct.title}</h1>
             <div className={css.prices}>
               <span className={css.price}>
-                ${product.discount_price || product.price}
+                ${currentProduct.discount_price ? currentProduct.discount_price.toFixed(2) : currentProduct.price.toFixed(2)}
               </span>
-              {product.discount_price && (
+              {currentProduct.discount_price && (
                 <>
-                  <span className={css.oldPrice}>${product.price}</span>
+                  <span className={css.oldPrice}>${currentProduct.price.toFixed(2)}</span>
                   <span className={css.discount}>-{discountPercent}%</span>
                 </>
               )}
@@ -80,14 +97,14 @@ const ProductPage = () => {
 
             <div className={css.description}>
               <h2>Description</h2>
-              <p>{product.description || 'No description available'}</p>
+              <p>{currentProduct.description || 'No description available'}</p>
               <a href="#more">Read more</a>
             </div>
           </div>
         </div>
       </div>
     </section>
-  )
-}
+  );
+};
 
-export default ProductPage
+export default ProductPage;

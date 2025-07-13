@@ -1,43 +1,82 @@
 .form {
-    display: flex;
-    flex-direction: column;
-    max-width: 600px;
-    min-width: 516px;
-  }
-  .input {
-    border: 1px solid #fff;
-    border-radius: 6px;
-    padding: 16px 32px;
-    background-color: transparent;
-    margin-bottom: 16px;
-  }
-  .input::placeholder {
-    font-weight: 500;
-    font-size: 20px;
-    line-height: 1.3;
-    color: #fff;
-  }
-  .errors {
-    font-size: 16px;
-    line-height: 1.3;
-     color: rgb(223, 124, 4);
-    margin-bottom: 8px;
-  }
-  .button {
-    border-radius: 6px;
-    padding: 16px 32px;
-    font-weight: 600;
-    font-size: 20px;
-    line-height: 1.3;
-    text-align: center;
-    color: #282828;
-    margin-top: 16px;
-    border: transparent;
-    cursor: pointer;
-    transition: all 0.3s ease-in-out;
+  display: flex;
+  flex-direction: column;
+  max-width: 600px;
+  min-width: 516px;
+}
+.input {
+  border: 1px solid #fff;
+  border-radius: 6px;
+  padding: 16px 32px;
+  background-color: transparent;
+  margin-bottom: 16px;
+}
+.input::placeholder {
+  font-weight: 500;
+  font-size: 20px;
+  line-height: 1.3;
+  color: #fff;
+}
+.errors {
+  font-size: 16px;
+  line-height: 1.3;
+   color: rgb(223, 124, 4);
+  margin-bottom: 8px;
+}
+.button {
+  border-radius: 6px;
+  padding: 16px 32px;
+  font-weight: 600;
+  font-size: 20px;
+  line-height: 1.3;
+  text-align: center;
+  color: #282828;
+  margin-top: 16px;
+  border: transparent;
+  cursor: pointer;
+  transition: all 0.3s ease-in-out;
+}
+
+.button:hover {
+  background-color: #282828;
+  color: #fff;
+}
+
+@media (max-width: 768px) {
+  .form {
+    max-width: 500px;
   }
   
-  .button:hover {
-    background-color: #282828;
-    color: #fff;
+  .input {
+    padding: 14px 20px;
   }
+  
+  .button {
+    padding: 14px 28px;
+  }
+}
+
+@media (max-width: 480px) {
+  .form {
+    min-width: 300px;
+    width: 100%;
+  }
+  
+  .input {
+    padding: 12px 16px;
+    font-size: 14px;
+  }
+  
+  .input::placeholder {
+    font-size: 14px;
+  }
+  
+  .button {
+    padding: 12px 24px;
+    font-size: 14px;
+  }
+  
+  .errors {
+    font-size: 12px;
+  }
+}
